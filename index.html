@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Máquina Enigma - Cifra de Substituição</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #e6e6e6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ffce5c;
+            text-shadow: 0 0 10px rgba(255, 206, 92, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #8f8f8f;
+            margin-bottom: 30px;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        .machine {
+            background: #0f3460;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+        }
+        
+        .machine-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4ecca3;
+            font-size: 1.8rem;
+        }
+        
+        .alphabet-display {
+            display: grid;
+            grid-template-columns: repeat(13, 1fr);
+            gap: 8px;
+            margin-bottom: 25px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .letter-pair {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .original {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #ffce5c;
+        }
+        
+        .encoded {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #4ecca3;
+        }
+        
+        .input-area {
+            margin-bottom: 25px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid #4ecca3;
+            border-radius: 8px;
+            color: white;
+            padding: 15px;
+            font-size: 1.2rem;
+            resize: none;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #ffce5c;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            background: #4ecca3;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #ffce5c;
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 60px;
+            border: 2px solid #4ecca3;
+            font-size: 1.2rem;
+            word-wrap: break-word;
+        }
+        
+        .instructions {
+            background: #0f3460;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+        
+        .instructions h2 {
+            color: #4ecca3;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .instructions p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .example {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #8f8f8f;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .machine, .instructions {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Máquina Enigma Simulator</h1>
+        <p class="subtitle">Cifra de substituição com mapeamento personalizado</p>
+    </header>
+    
+    <div class="container">
+        <div class="machine">
+            <h2 class="machine-title">Codificador/Decodificador</h2>
+            
+            <div class="alphabet-display">
+                <!-- Letras do alfabeto serão inseridas via JavaScript -->
+            </div>
+            
+            <div class="input-area">
+                <textarea id="inputText" placeholder="Digite o texto para codificar ou decodificar..."></textarea>
+            </div>
+            
+            <div class="buttons">
+                <button id="encodeBtn">Codificar</button>
+                <button id="decodeBtn">Decodificar</button>
+                <button id="clearBtn">Limpar</button>
+            </div>
+            
+            <div class="result" id="result">
+                Resultado aparecerá aqui...
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h2>Como Funciona</h2>
+            <p>Esta é uma simulação simplificada usando um alfabeto de substituição fixo:</p>
+            
+            <p><strong>a = c</strong> | <strong>b = z</strong> | <strong>c = i</strong> | <strong>d = e</strong> | 
+            <strong>e = d</strong> | <strong>f = g</strong> | <strong>g = h</strong> | <strong>h = s</strong> | 
+            <strong>i = u</strong> | <strong>j = f</strong> | <strong>k = n</strong> | <strong>l = m</strong> | 
+            <strong>m = o</strong> | <strong>n = p</strong> | <strong>o = q</strong> | <strong>p = x</strong> | 
+            <strong>q = y</strong> | <strong>r = b</strong> | <strong>s = a</strong> | <strong>t = k</strong> | 
+            <strong>u = j</strong> | <strong>v = l</strong> | <strong>w = r</strong> | <strong>x = t</strong> | 
+            <strong>y = w</strong> | <strong>z = v</strong></p>
+            
+            <p>Para codificar: digite o texto e clique em "Codificar".</p>
+            <p>Para decodificar: digite o texto codificado e clique em "Decodificar".</p>
+            
+            <div class="example">
+                <p><strong>Exemplo:</strong></p>
+                <p>Texto original: "enigma"</p>
+                <p>Texto codificado: "dupso c"</p>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Simulador de Cifra de Substituição - Apenas para fins educacionais</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mapeamento do alfabeto conforme solicitado
+            const alphabetMap = {
+                'a': 'c', 'b': 'z', 'c': 'i', 'd': 'e', 'e': 'd', 
+                'f': 'g', 'g': 'h', 'h': 's', 'i': 'u', 'j': 'f', 
+                'k': 'n', 'l': 'm', 'm': 'o', 'n': 'p', 'o': 'q', 
+                'p': 'x', 'q': 'y', 'r': 'b', 's': 'a', 't': 'k', 
+                'u': 'j', 'v': 'l', 'w': 'r', 'x': 't', 'y': 'w', 
+                'z': 'v'
+            };
+            
+            // Criar o mapeamento reverso para decodificação
+            const reverseMap = {};
+            for (const [key, value] of Object.entries(alphabetMap)) {
+                reverseMap[value] = key;
+            }
+            
+            // Preencher o display do alfabeto
+            const alphabetDisplay = document.querySelector('.alphabet-display');
+            for (const [key, value] of Object.entries(alphabetMap)) {
+                const letterPair = document.createElement('div');
+                letterPair.className = 'letter-pair';
+                
+                const original = document.createElement('div');
+                original.className = 'original';
+                original.textContent = key;
+                
+                const encoded = document.createElement('div');
+                encoded.className = 'encoded';
+                encoded.textContent = value;
+                
+                letterPair.appendChild(original);
+                letterPair.appendChild(encoded);
+                
+                alphabetDisplay.appendChild(letterPair);
+            }
+            
+            // Elementos da interface
+            const inputText = document.getElementById('inputText');
+            const encodeBtn = document.getElementById('encodeBtn');
+            const decodeBtn = document.getElementById('decodeBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const resultDiv = document.getElementById('result');
+            
+            // Função para codificar texto
+            function encode(text) {
+                return text.split('').map(char => {
+                    const lowerChar = char.toLowerCase();
+                    if (alphabetMap[lowerChar]) {
+                        // Manter o caso original (maiúscula/minúscula)
+                        return char === char.toUpperCase() 
+                            ? alphabetMap[lowerChar].toUpperCase() 
+                            : alphabetMap[lowerChar];
+                    }
+                    return char; // Manter caracteres não-alfabéticos
+                }).join('');
+            }
+            
+            // Função para decodificar texto
+            function decode(text) {
+                return text.split('').map(char => {
+                    const lowerChar = char.toLowerCase();
+                    if (reverseMap[lowerChar]) {
+                        // Manter o caso original (maiúscula/minúscula)
+                        return char === char.toUpperCase() 
+                            ? reverseMap[lowerChar].toUpperCase() 
+                            : reverseMap[lowerChar];
+                    }
+                    return char; // Manter caracteres não-alfabéticos
+                }).join('');
+            }
+            
+            // Event Listeners
+            encodeBtn.addEventListener('click', function() {
+                const text = inputText.value;
+                const encodedText = encode(text);
+                resultDiv.textContent = encodedText;
+            });
+            
+            decodeBtn.addEventListener('click', function() {
+                const text = inputText.value;
+                const decodedText = decode(text);
+                resultDiv.textContent = decodedText;
+            });
+            
+            clearBtn.addEventListener('click', function() {
+                inputText.value = '';
+                resultDiv.textContent = 'Resultado aparecerá aqui...';
+            });
+        });
+    </script>
+</body>
+</html>
